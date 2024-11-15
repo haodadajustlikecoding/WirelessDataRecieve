@@ -1,0 +1,16 @@
+{
+    // Loaded Stubs:  esp8266-micropython-1.11.0 
+    
+    "python.languageServer": "Pylance",
+    "python.analysis.autoSearchPath": true,
+    "python.autoComplete.extraPaths": [".micropy\\BradenM-micropy-stubs-70f5531\\frozen", ".micropy\\BradenM-micropy-stubs-4f5a52a\\frozen", ".micropy\\BradenM-micropy-stubs-70f5531\\stubs", ".micropy\\WirelessDataRecieve"],
+    "python.analysis.diagnosticSeverityOverrides": { "reportMissingModuleSource": "none" },
+    "python.analysis.typeCheckingMode": "basic",
+    "python.autoComplete.typeshedPaths":  [".micropy\\BradenM-micropy-stubs-70f5531\\frozen", ".micropy\\BradenM-micropy-stubs-4f5a52a\\frozen", ".micropy\\BradenM-micropy-stubs-70f5531\\stubs", ".micropy\\WirelessDataRecieve", "typings"],
+    "python.analysis.typeshedPaths":  [".micropy\\BradenM-micropy-stubs-70f5531\\frozen", ".micropy\\BradenM-micropy-stubs-4f5a52a\\frozen", ".micropy\\BradenM-micropy-stubs-70f5531\\stubs", ".micropy\\WirelessDataRecieve", "typings"],
+    
+    
+
+    "python.linting.enabled": true,
+    "python.linting.pylintEnabled": true
+}

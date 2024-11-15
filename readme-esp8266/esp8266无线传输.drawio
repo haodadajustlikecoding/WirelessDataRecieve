@@ -1,0 +1,43 @@
+<mxfile host="65bd71144e">
+    <diagram id="omWnAFf9Q3GXSE_YNy6m" name="Page-1">
+        <mxGraphModel dx="741" dy="563" grid="0" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" background="#ffffff" math="0" shadow="0">
+            <root>
+                <mxCell id="0"/>
+                <mxCell id="1" parent="0"/>
+                <mxCell id="4" value="" style="edgeStyle=none;html=1;strokeColor=#000000;endSize=6;jumpSize=11;" edge="1" parent="1" source="2" target="3">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="2" value="ESP8266刷对应固件" style="whiteSpace=wrap;html=1;fillColor=#FFFFFF;fontColor=#333333;strokeColor=#666666;gradientColor=none;gradientDirection=north;labelBorderColor=none;rounded=0;" vertex="1" parent="1">
+                    <mxGeometry x="345" y="85" width="120" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="6" value="" style="edgeStyle=none;shape=connector;rounded=1;html=1;labelBackgroundColor=default;strokeColor=#000000;fontFamily=Helvetica;fontSize=11;fontColor=default;endArrow=classic;" edge="1" parent="1" source="3" target="5">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="3" value="MicroPython/Arduino代码编写" style="whiteSpace=wrap;html=1;fillColor=#FFFFFF;fontColor=#333333;strokeColor=#666666;gradientColor=none;gradientDirection=north;labelBorderColor=none;rounded=0;" vertex="1" parent="1">
+                    <mxGeometry x="345" y="182" width="120" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="8" value="" style="edgeStyle=none;shape=connector;rounded=1;html=1;labelBackgroundColor=default;strokeColor=#000000;fontFamily=Helvetica;fontSize=11;fontColor=default;endArrow=classic;endSize=6;" edge="1" parent="1" source="5" target="7">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="5" value="开启一键配网" style="whiteSpace=wrap;html=1;fillColor=#FFFFFF;fontColor=#333333;strokeColor=#666666;gradientColor=none;gradientDirection=north;labelBorderColor=none;rounded=0;" vertex="1" parent="1">
+                    <mxGeometry x="345" y="279" width="120" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="12" value="" style="edgeStyle=none;shape=connector;rounded=1;html=1;labelBackgroundColor=default;strokeColor=#000000;fontFamily=Helvetica;fontSize=11;fontColor=default;endArrow=classic;endSize=6;" edge="1" parent="1" source="7" target="11">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="7" value="串口--TCP透传" style="whiteSpace=wrap;html=1;fillColor=#FFFFFF;fontColor=#333333;strokeColor=#666666;gradientColor=none;gradientDirection=north;labelBorderColor=none;rounded=0;" vertex="1" parent="1">
+                    <mxGeometry x="345" y="376" width="120" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="10" value="" style="edgeStyle=none;shape=connector;rounded=1;html=1;labelBackgroundColor=default;strokeColor=#000000;fontFamily=Helvetica;fontSize=11;fontColor=default;endArrow=classic;endSize=6;" edge="1" parent="1" source="9" target="7">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="9" value="雷达MCU数据输出" style="whiteSpace=wrap;html=1;fillColor=#FFFFFF;fontColor=#333333;strokeColor=#666666;gradientColor=none;gradientDirection=north;labelBorderColor=none;rounded=0;" vertex="1" parent="1">
+                    <mxGeometry x="153" y="376" width="120" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="11" value="服务器端数据接收" style="whiteSpace=wrap;html=1;fillColor=#FFFFFF;fontColor=#333333;strokeColor=#666666;gradientColor=none;gradientDirection=north;labelBorderColor=none;rounded=0;" vertex="1" parent="1">
+                    <mxGeometry x="545" y="376" width="120" height="60" as="geometry"/>
+                </mxCell>
+            </root>
+        </mxGraphModel>
+    </diagram>
+</mxfile>
