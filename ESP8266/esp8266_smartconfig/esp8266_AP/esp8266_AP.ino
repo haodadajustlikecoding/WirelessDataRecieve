@@ -7,11 +7,12 @@
 // const char* HostIP = "192.168.64.175"; // 服务器 IP 地址 手机热点
 // const char* HostIP = "192.168.137.101"; // 服务器 IP 地址  电脑热点
 // const char* HostIP = "127.0.0.1"; // 服务器 IP 地址  电脑热点
-String  HostIP = "113.219.237.121"; // 服务器 IP 地址  电脑热点
-const int HostPort = 44365;                // 服务器端口号
+// String  HostIP = "113.219.237.121"; // 服务器 IP 地址  电脑热点
+// const int HostPort = 44365;                // 服务器端口号
 // const char* url = "http://b5e7e0a1-1234-5678-90ab-cdef01234567.mock.pstmn.io"; // 替换为 Mock Server 的 URL
-String url = "http://httpbin.org/get";
-
+// String url = "http://httpbin.org/post"; //post请求 测试
+// String url = "http://httpbin.org/get"; //get 请求
+String url = "http://xenv102v.iclegend.com/api/sys/records/";
 const int data_size = 272;
 WiFiClient client;
 uint8_t macAddr[6]; // 建立保存mac地址的数组。用于以下语句
@@ -47,7 +48,7 @@ void AutoCnnectWiFi(){
   }
 void setup() {
     Serial.begin(256000);  // 配置串口
-
+    Serial.setRxBufferSize(2048);
     AutoCnnectWiFi();  // 自动连接WIFI
       // 设置时间（假设已经同步过NTP时间）
     configTime(0, 0, "pool.ntp.org", "time.nist.gov");
@@ -58,15 +59,16 @@ byte FrameTail[4] = {0xF5,0xF6,0xF7,0xF8};
 
 int dataindex = 0;
 
-
 void loop() {
-    // 检查是否有可用的串口数据
-    Serial.print("MAC地址");
-    Serial.println(DeviceID);
+    // Serial.print("Waiting for data");
+    // delay(10);
     if(Serial.available()>0){
+        // Serial.print("Check data");
+
         byte readbyte = Serial.read();
-        // Serial.print(readbyte);
-        // Serial.print('\r');
+
+        Serial.print(readbyte);
+        Serial.print('\r');
         // Serial.print(FrameHead[0]);
         // Serial.print(readbyte==FrameHead[0]);
         if (readbyte == FrameHead[0]){
@@ -84,8 +86,8 @@ void loop() {
                         if(Serial.available()>0){
                           byte readbyte = Serial.read();
                           variable[dataindex++] = readbyte;
-                          Serial.print(dataindex);
-                          Serial.print('\t');
+                          // Serial.print(dataindex);
+                          // Serial.print('\t');
                         }
                       }
                       // 连接到服务器
@@ -97,31 +99,48 @@ void loop() {
                       //         return;
                       //     }
                       // }
-                      dataindex = 0; 
-                      // 准备发送的数据
+                      time_t now = time(nullptr);
+                      String now_timestamp = String(now) + "000";
+
+                      // 准备发送的数据 AA timestamp 55 
                       String dataString = "";
+                      dataString = dataString + "AA " + now_timestamp + " " + "55 ";
                       for (int i = 0; i < data_size; i++) {
                         dataString += String(variable[i], HEX);
                         if (i < data_size - 1) {
                           dataString += " ";
                         }
                     }
-                    time_t now = time(nullptr);
                       // 将设备ID和数据格式化为一个字符串
-                    // 构建 GET 请求数据
+                    
                     HTTPClient http;
-                    String message = "device_id=" + DeviceID + "&timestamp=" + String(now) + "&data=" + dataString;
-                    url += "?device_id=" + DeviceID;
-                    Serial.println(message);
+                    String message = "mac=" + DeviceID + "&timestamp=" + now_timestamp + "&data=" + dataString;
+                    
+                    Serial.println(now_timestamp);
 
+
+                    // GET方式
+                    // url += "?device_id=" + DeviceID ;
+                    // http.begin(client, url);
+                    // int httpResponseCode = http.GET(); // 发送 GET 请求
+                    // POST方式
+                    // String SendData = "device_id=" + DeviceID ;
                     http.begin(client, url);
-                    Serial.println("Start HTTP Get URL");
-                    int httpResponseCode = http.GET(); // 发送 GET 请求
+                    http.addHeader("Content-Type", "application/x-www-form-urlencoded");
+                    unsigned long startTime = millis();
+
+
+
+                    int httpResponseCode = http.POST(message); // 发送 POST 请求
+                    unsigned long endTime = millis();
+                    Serial.print("HTTP request duration: ");
+                    Serial.println(endTime - startTime);
+
 
                     if (httpResponseCode > 0) {
                       String response = http.getString(); // 获取响应体
                       Serial.println(httpResponseCode); // 打印 HTTP 响应码
-                      Serial.println(response); // 打印响应体
+                      // Serial.println(response); // 打印响应体
                     } else {
                       Serial.print("Error on sending GET: ");
                       Serial.println(httpResponseCode); // 打印错误码
@@ -139,6 +158,11 @@ void loop() {
                     //     Serial.print("Received data from server: ");
                     //     Serial.println(serverData);
                     // }
+                        // 检查是否有可用的串口数据
+                    // Serial.print("MAC地址");
+                    // Serial.println(DeviceID);
+                    dataindex = 0; 
+
         }
         }
         }

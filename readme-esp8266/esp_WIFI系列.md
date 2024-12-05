@@ -1,3 +1,13 @@
+# Arduino配置
+json参考：
+~~~
+http://arduino.esp8266.com/stable/package_esp8266com_index.json
+https://arduino.me/packages/esp32.json
+https://arduino.me/packages/esp8266.json
+https://dl.espressif.com/dl/package_esp32_index.json
+https://raw.githubusercontent.com/espressif/arduino-esp32/gh-pages/package_esp32_index.json
+~~~
+
 # ESP8266 的部分使用说明
 ```IO0```引脚接地：代表烧录模式，否则拉高或者悬空代表正常工作模式。
 ```RESET```:接地代表复位
@@ -67,4 +77,80 @@ TP查询字符串格式（Query String Format）。这种格式通常用于HTTP 
 
 ### Django 400 错误请求
 Django 中的这个错误表示由于语法无效，服务器无法处理客户端发送的请求。
+
+# ESP32使用说明问题
+## ESP32 supermini C3 一直断连USB，并且串口输出invalid header: 0xffffffff
+
+首次下载前，需要进行如下操作
+1. 断开USB，也就是断电
+2. 请将D9与对角线的GND连接
+3. 再接上USB
+4. 现在就可以正常下载了
+
+下载成功以后，需要进行如下的操作
+1. 断开USB,也就是断电
+2. 断开D9与GND的链接
+3. 再接上USB
+4. 现在就能正常运行了
+后续再次下载，就不需要再将D9接GND了，可以直接下载了
+
+## ESP32 c3 supermini
+
+```工具 > 开发板 > ESP32 Arduino并选择“ ESP32C3 Dev Module ```
+注意！==烧录FlashMode改为DIO==
+板载LED蓝灯： ==GPIO8引脚==
+![](2024-12-05-15-17-53.png)
+
+尺寸
+![](2024-12-05-15-18-18.png)
+原理图
+![](2024-12-05-15-18-28.png)
+### 外接电源问题！
+如果需要外部供电只需将外部电源+级接入5V的位置，GND接负极。（支持3.3～6V电源）。切记连接外部电源的时候，无法接入USB，==USB和外部供电只能选择一个。==
+### 烧录程序后重新烧录报错
+提示”A fatal error occurred: No serial data received“
+一定要进入烧录模式，具体见Q1
+
+### Q1 如何进入下载模式
+进入下载模式：方式1：按住BOOT上电。方式2：按住ESP32C3的BOOT按键，然后按下RESET按键，松开RESET按键，再松开BOOT按键，此时ESP32C3会进入下载模式。（每次连接都需要重新进入下载模式，有时按一遍，端口不稳定会断开，可以通过端口识别声音来判断）
+
+### Q2 上传之后程序无法运行
+上传成功之后需要按一下Reset按键，才会执行。
+
+### Q3 插上电脑不显示Com口，显示 （JTAG/serial debug unit）
+[显示 JTAG/serial debug unit 解决方案](https://chat.nologo.tech/d/72/3)
+
+### Q4 ESP32C3SuperMini Arduino 串口无法打印
+需要将工具栏中USB CDC On Boot 设置成Enabled。这一步是必须的！一定的！C3板子不改成Enable不会把usb作为输出串口
+
+#### 设置了USB CDC ON BOOT 为ENABLE还是不能用？烧录时的FlashMode问题或者根本没进入下载模式
+1. 一定要进入烧录模式 ，见Q1
+2. 烧录FlashMode改为DIO(可选)
+![](2024-12-05-17-27-10.png)
+ 
+
+### 串口配置Serial 串口
+#### 硬串口
+板子上有两个硬件串口
+* USB串口
+* UART串口
+  
+默认情况下，USB 串行处于启用状态，这意味着您可以通过 USB Type-C 将开发板连接到 PC，并在 Arduino IDE 上打开串行监视器以查看通过串行发送的数据
+但是，如果您想==使用 UART 作为串口==，则需要使用 USB 串行适配器将引脚 20 连接为 TX 引脚，将引脚 21 连接为 RX 引脚。
+另外，您==需要从 Arduino IDE 将USB CDC On Boot设置为禁用==。
+
+### FreeRTOS问题，同样的程序为什么S3行但是C3mini不行
+#### 找不到库问题
+~~~c++
+// #include <FreeRTOS.h> // ESP32 s3支持 但是esp32c3 mini找不到这个，不知道为什么 
+// #include <Arduino.h>
+#include <WiFi.h>          
+#include <WiFiManager.h>  
+#include <HTTPClient.h>
+#include <queue>
+// #include <task.h>  
+~~~
+后续将自己安装的freertos卸载了，然后给```FreeRTOS.h```和```task.h```注释了，用官方自带的库就行；原因可能是自带的FreeRTOS和自己在库管理器里面下载的FreeRTOS冲突了
+#### 烧录了后很卡的问题
+这款芯片是单核的，160M；用FreeRTOS会卡；开不了几个任务，任务一直在高速循环
 

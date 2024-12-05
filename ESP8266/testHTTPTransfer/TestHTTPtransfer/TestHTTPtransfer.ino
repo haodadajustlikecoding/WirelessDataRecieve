@@ -39,9 +39,11 @@ void loop() {
 
     Serial.println("开始连接服务器...");
     Serial.print("请求URL: ");
-    Serial.println(String(serverName) + "?fromESP8266=1");
-    http.begin(client, String(serverName) + "?fromESP8266=1"); // 指定目标 URL
-    http.setTimeout(15000); // 设置 15 秒超时
+    time_t now = time(nullptr);
+    String message =  String(serverName)+"?fromESP8266=1"+ "&timestamp=" + String(now)
+    Serial.println( message);
+    http.begin(client, message); // 指定目标 URL
+    // http.setTimeout(15000); // 设置 15 秒超时
 
     int httpResponseCode = http.GET(); // 发送 GET 请求
 
