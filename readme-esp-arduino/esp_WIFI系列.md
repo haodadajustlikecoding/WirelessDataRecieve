@@ -80,7 +80,8 @@ Django 中的这个错误表示由于语法无效，服务器无法处理客户�
 
 # ESP32使用说明问题
 ## ESP32 supermini C3 一直断连USB，并且串口输出invalid header: 0xffffffff
-
+出现这个问题说明这个板子现在没有任何固件，需要进行烧录，可以按照下面操作方式进行烧录，也可以按照Q1方式在Arduino烧录
+```
 首次下载前，需要进行如下操作
 1. 断开USB，也就是断电
 2. 请将D9与对角线的GND连接
@@ -93,11 +94,12 @@ Django 中的这个错误表示由于语法无效，服务器无法处理客户�
 3. 再接上USB
 4. 现在就能正常运行了
 后续再次下载，就不需要再将D9接GND了，可以直接下载了
+```
 
 ## ESP32 c3 supermini
 
-```工具 > 开发板 > ESP32 Arduino并选择“ ESP32C3 Dev Module ```
-注意！==烧录FlashMode改为DIO==
+Arduino配置：```工具 > 开发板 > ESP32 Arduino并选择“ ESP32C3 Dev Module ```
+注意！==烧录FlashMode改为DIO==（改不改好像没多大问题）
 板载LED蓝灯： ==GPIO8引脚==
 ![](2024-12-05-15-17-53.png)
 
@@ -127,7 +129,9 @@ Django 中的这个错误表示由于语法无效，服务器无法处理客户�
 1. 一定要进入烧录模式 ，见Q1
 2. 烧录FlashMode改为DIO(可选)
 ![](2024-12-05-17-27-10.png)
- 
+
+### 有时候检测不到com口？
+c3估计是单面typeC，可以插拔USB到c3的接口，换一个面重试一下
 
 ### 串口配置Serial 串口
 #### 硬串口
@@ -151,6 +155,81 @@ Django 中的这个错误表示由于语法无效，服务器无法处理客户�
 // #include <task.h>  
 ~~~
 后续将自己安装的freertos卸载了，然后给```FreeRTOS.h```和```task.h```注释了，用官方自带的库就行；原因可能是自带的FreeRTOS和自己在库管理器里面下载的FreeRTOS冲突了
-#### 烧录了后很卡的问题
+#### 烧录了后很卡的问题-FRERTOS
 这款芯片是单核的，160M；用FreeRTOS会卡；开不了几个任务，任务一直在高速循环
+ESP32原版是双核的，C3是RiscV单核，S3也是双核的
+>解决了，问题出在自己的配置上面的问题，FreeRTOS的优先级是==数字越大优先级越高！！！==
+#### FreeRTOS 创建任务时打印不出来消息？
+十有八九是任务创建出问题了，排在第一个的任务创建失败，自己查找下原因；可以切换任务的顺序，查看是否能够创建成功别的任务
+#### 创建任务的优先级建议设置为同优先级
+同优先级任务创建起来稳定一些，参考以下，一开始我的collectDataTask的优先级设置成了2，sendDataTask的优先级设置成了1，导致创建失败，后来改成了全部改为1，创建成功了
+>Task create result: 1
+Success creating sendDataTask
+Task create result: 1
+Success creating collectDataTask
 
+
+
+# 使用bin文件进行烧录
+## 导出bin文件
+在arduino中，
+
+* /build 目录下的 bootloader.bin。
+* /build 目录下的 partition-table.bin。
+* /build 下的 xxx.bin。（用户代码，文件名称与工程相同
+![Alt text](image.png)
+
+## esptool下载
+[乐鑫官网下载烧录软件](https://docs.espressif.com/projects/esp-test-tools/zh_CN/latest/esp32/production_stage/tools/flash_download_tool.html)
+
+
+* 勾选 DoNotChgBin ，设备将默认使用固件编译时的软件配置
+* 不勾选 DoNotChgBin ，设备将会使用固件下载时的 Flash 下载工具配置界面的设置
+* CombineBin 是合并固件，固件之间非数据区，会以 0xff 进行填充。合并后的固件默认保存在 Flash Download Tool/combine 目录下，合并固件的下载地址为 0 。
+* Default 使用的是系统默认设置的 SPI Flash Config 配置
+* Flash 下载固件过程默认不会全擦 Flash ，可以通过 ERASE 按键全擦 Flash
+
+### 烧录配置
+Arduino 烧录下载地址
+~~~bash
+Global variables use 40988 bytes (12%) of dynamic memory, leaving 286692 bytes for local variables. Maximum is 327680 bytes.
+"C:\Users\HaoDada\AppData\Local\Arduino15\packages\esp32\tools\esptool_py\4.5.1/esptool.exe" 
+--chip esp32c3 --port "COM19" --baud 921600  --before default_reset 
+--after hard_reset write_flash  
+-z --flash_mode dio --flash_freq 80m --flash_size 4MB 
+0x0 
+"C:\Users\HaoDada\AppData\Local\Temp\arduino\sketches\3C2D02A8D4E730D3A7860AF28DE1D5AE/esp32c3_freeRtos_http.ino.bootloader.bin" 
+0x8000 
+"C:\Users\HaoDada\AppData\Local\Temp\arduino\sketches\3C2D02A8D4E730D3A7860AF28DE1D5AE/esp32c3_freeRtos_http.ino.partitions.bin" 
+0xe000 
+"C:\Users\HaoDada\AppData\Local\Arduino15\packages\esp32\hardware\esp32\2.0.9/tools/partitions/boot_app0.bin" 
+0x10000 
+"C:\Users\HaoDada\AppData\Local\Temp\arduino\sketches\3C2D02A8D4E730D3A7860AF28DE1D5AE/esp32c3_freeRtos_http.ino.bin" 
+~~~
+从上面可以知道
+地址 ```0x0000``` 烧录 ```bootloader.bin```
+地址 ```0x8000``` 烧录 ```partition-table.bin```或者```.partitions.bin```
+地址 ```0x10000``` 烧录 ```用户个人程序.bin```
+地址 ```0xe000``` 烧录 ```boot_app0.bin``` ；但是经过验证，这个不需要，只需要烧录上面三个即可
+
+最终配置页面：
+![](2024-12-26-16-48-20.png)
+#### 测试了一下如果只烧录build生成的三个文件::没问题
+因为我的代码中build后只生成了三个bin，剩下还有一个```esp32\2.0.9\tools\partitions\boot_app0.bin```
+测试一下只烧录生成的三个bin会出现什么问题：
+烧录的三个bin：
+![Alt text](image-2.png)
+![](2024-12-26-16-41-38.png)
+# 外壳设计问题
+## fusion360
+### 导入stl
+有现成的stl但是直接编辑比较困难，stl是实际打印机看到的网格，其上面的曲面是很多三角形模拟的曲面；
+需要以下步骤便可转为实体：
+```网格 > 准备--生成面族 > 修改--转换网格```
+注意转换网格时选择不同的转换可以直接将部分不复杂的面转换为曲面
+### 如何画图案
+[Fusion360 雕刻图案和避坑](https://www.bilibili.com/video/BV13G411t7jc/?spm_id_from=333.337.search-card.all.click&vd_source=b83e0b7eec8fae554587e9a1ee79dda1)
+
+### 面上的坑怎么办？
+直接删除，删除不了的话就选中多个进行删除
+![](2024-12-06-14-16-09.png)
