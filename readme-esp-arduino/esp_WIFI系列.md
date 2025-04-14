@@ -1,4 +1,36 @@
+# 项目简介
+本工程主要面向ESP8266和ESP32的使用问题，由于基于Arduino，用户需要首先安装Arduino开发环境，本工程记录了如下内容：
+* 工程代码介绍，与需要修改的地方
+* Arduino简单配置，详细配置环境可百度
+* ESP8266和ESP32在使用过程中的各种坑
+* 使用乐鑫官方套件升级ESP固件的方式
+
+# 工程代码介绍
+为理解本部分的内容，请自行了解HTTP、GET、POST等网络传输协议知识
+目前基本只采用esp32c3这种有最小系统的版本，参考代码见：```(../ESP_Arduino_Code/esp32/esp32c3_freeRtos_http/esp32c3_freeRtos_http.ino)```
+
+## 工程主要函数介绍
+1. AutoConnectWiFi() ： 自动配置WiFi，基于WIFIManager，可以在此配置一下AP的WIFI名字的连接密码
+2. collectDataTask() ： FreeRTOS配置的数据收集TASK，由于网络波动问题，建议数据收集和发送的频率不要太大，可以在该函数中配置积累的帧数和数据协议
+3. sendDataTask() ： 数据发送函数，可以在此配置传输协议，目前采用的是简单的HTTP GET POST方式
+4. loop() ： 实际上是主函数，但是这里采用了FreeRTOS开启两个任务，就不需要主函数了
+5. setup()  ：系统上电初始化，一切初始化的代码都在此进行，包括配置Wifi，配置FreeRTOS的两个任务
+
+
+
+
+## 雷达数据传输协议修改
+1. 雷达数据通过串口传入的格式一般为：```帧头+雷达数据+帧尾```
+2. collectDataTask中首先判断传输的雷达数据帧头能否对应的上，可单独自己配置```FrameHead```
+3. gatherData中，为每一帧数据打上时间戳，并组成pack，用于发送数据
+   1. 注意，此处单独挑出来了雷达数据，分为两个部分：给客户的数据和管理员数据（用于自己debug的数据）
+   2. 配置好的数据结构为:```AA+时间戳+55+雷达数据（客户/Admin）```
+4. sendDataTask中利用GetPost方式发送打包好的数据，一般不需要更改，但是这里可以指定发送的key和value，可以自行创建
+
+
+
 # Arduino配置
+
 json参考：
 ~~~
 http://arduino.esp8266.com/stable/package_esp8266com_index.json

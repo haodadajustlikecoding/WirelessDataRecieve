@@ -42,7 +42,7 @@ int state = 0;
 TaskHandle_t sendDataTaskHandle = nullptr;
 void AutoConnectWiFi(){
     WiFiManager wifiManager;
-    wifiManager.autoConnect("XenV102V_AutoCnnectAP", "12345678");
+    wifiManager.autoConnect("XenV102V_AutoConnectAP", "12345678");
     // WiFi连接成功打印信息
     Serial.println(""); 
     Serial.print("ESP32C3 Connected to ");
